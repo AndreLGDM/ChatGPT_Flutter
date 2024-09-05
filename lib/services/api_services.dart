@@ -35,16 +35,21 @@ class ApiService {
   static Future<List<ChatModel>> sendMessage(
       {required String message, required String modelId}) async {
     try {
-      var response = await http.post(
-        Uri.parse('$BASE_URL/completions'),
-        headers: {
-          'Authorization': 'Bearer $API_KEY',
-          'Content-Type': 'application/json'
-        },
-        body: jsonEncode(
-            {"model": modelId, "messages": message, "temperature": 0.7}),
-      );
-      Map jsonResponse = jsonDecode(response.body);
+      var response = await http.post(Uri.parse('$BASE_URL/chat/completions'),
+          headers: {
+            'Authorization': 'Bearer $API_KEY',
+            'Content-Type': 'application/json; charset=utf-8'
+          },
+          body: utf8.encode(
+            jsonEncode({
+              "model": modelId,
+              "messages": [
+                {"role": "user", "content": message}
+              ],
+              "temperature": 0.7
+            }),
+          ));
+      Map jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
       if (jsonResponse['error'] != null) {
         //print('jsonResponse["error"] ${jsonResponse['error']['message']}');
         throw HttpException(jsonResponse['error']['message']);
@@ -55,7 +60,7 @@ class ApiService {
         chatList = List.generate(
           jsonResponse['choices'].length,
           (index) => ChatModel(
-            msg: jsonResponse['choices'][index]['text'],
+            msg: jsonResponse['choices'][index]['message']['content'],
             chatIndex: 1,
           ),
         );

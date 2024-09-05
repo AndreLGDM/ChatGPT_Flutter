@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/models_model.dart';
 
 class ModelsProvider with ChangeNotifier {
-  String currentModel = 'davinci-002';
+  String currentModel = 'gpt-4o-mini';
   String get getCurrentModel {
     return currentModel;
   }

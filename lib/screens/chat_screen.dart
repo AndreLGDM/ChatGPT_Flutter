@@ -21,10 +21,12 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isTyping = false;
 
   late TextEditingController textEditingController;
+  late ScrollController _listScrollController;
   late FocusNode focusNode;
 
   @override
   void initState() {
+    _listScrollController = ScrollController();
     textEditingController = TextEditingController();
     focusNode = FocusNode();
     super.initState();
@@ -32,6 +34,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    _listScrollController.dispose();
     textEditingController.dispose();
     focusNode.dispose();
     super.dispose();
@@ -69,6 +72,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Flexible(
               child: ListView.builder(
+                  controller: _listScrollController,
                   itemCount: chatList.length,
                   itemBuilder: (context, index) {
                     return ChatWidget(
@@ -122,6 +126,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> sendMessageFCT({required ModelsProvider modelsProvider}) async {
+    final String aux = textEditingController.text;
     try {
       setState(() {
         _isTyping = true;
@@ -130,7 +135,8 @@ class _ChatScreenState extends State<ChatScreen> {
         focusNode.unfocus();
       });
       chatList.addAll(await ApiService.sendMessage(
-          message: textEditingController.text,
+          message:
+              'Sem mensagens adicionais como boa sorte, boa prova ou qualquer outra coisa e no formato de 5 questões com 4 alterativas e com 1 correta me gere uma prova sem as respostas $aux',
           modelId: modelsProvider.getCurrentModel));
     } catch (error) {
       log('error $error');
